@@ -9,84 +9,16 @@ import os
 name = "MainState"
 
 def handle_events():
-    global running
-
+    global juel, lave
     events = get_events()
     for event in events:
         if event.type == SDL_QUIT:
             framework.quit()
-        elif event.type == SDL_KEYUP:
-            if event.key == SDLK_RIGHT:
-                juel.jump_right = False
-                juel.move = False
-                if juel.key == True:
-                    juel.state = juel.RIGHT_STAND
-                    juel.key = False
-            elif event.key == SDLK_LEFT:
-                juel.jump_left = False
-                juel.move = False
-                if juel.key == True:
-                    juel.state = juel.LEFT_STAND
-                    juel.key = False
-            elif event.key == SDLK_a:
-                lave.jump_left = False
-                lave.move = False
-                if lave.key == True:
-                    lave.state = lave.LEFT_STAND
-                    lave.key = False
-            elif event.key == SDLK_d:
-                lave.jump_right = False
-                lave.move = False
-                if lave.key == True:
-                    lave.state = lave.RIGHT_STAND
-                    lave.key = False
-        elif event.type == SDL_KEYDOWN:
-            if event.key == SDLK_ESCAPE:
-                framework.change_state(first_state)
-            elif event.key == SDLK_RIGHT:
-                juel.move = True
-                juel.jump_right = True
-                if juel.jump == 0:
-                    juel.state = juel.RIGHT_RUN
-                    juel.key = True
-            elif event.key == SDLK_LEFT:
-                juel.move = True
-                juel.jump_left = True
-                if juel.jump == 0:
-                    juel.state = juel.LEFT_RUN
-                    juel.key = True
-            elif event.key == SDLK_UP:
-                if juel.jump == 0:
-                    if juel.state == juel.LEFT_STAND:
-                        juel.state = juel.LEFT_JUMP
-                        juel.jump = 1
-                        juel.key = False
-                    else:
-                        juel.state = juel.RIGHT_JUMP
-                        juel.jump = 1
-                        juel.key = False
-            elif event.key == SDLK_a:
-                lave.moce = True
-                lave.jump_left = True
-                if lave.jump == 0:
-                    lave.state = lave.LEFT_RUN
-                    lave.key = True
-            elif event.key == SDLK_d:
-                lave.jump_right = True
-                lave.move = True
-                if lave.jump == 0:
-                    lave.state = lave.RIGHT_RUN
-                    lave.key = True
-            elif event.key == SDLK_w:
-                if lave.jump == 0:
-                    if lave.state == lave.LEFT_STAND:
-                        lave.state = lave.LEFT_JUMP
-                        lave.jump = 1
-                        lave.key = False
-                    else:
-                        lave.state = lave.RIGHT_JUMP
-                        lave.jump = 1
-                        lave.key = False
+        elif event.type == SDL_KEYDOWN and event.key == SDLK_ESCAPE:
+            framework.change_state(first_state)
+        else:
+            juel.handle_events(event)
+            lave.handle_events(event)
 
 def enter():
     global juel, lave, background, food_juel, food_lave
