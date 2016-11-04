@@ -8,7 +8,7 @@ import os
 
 name = "MainState"
 
-def handle_events():
+def handle_events(frame_time):
     global juel, lave
     events = get_events()
     for event in events:
@@ -27,6 +27,7 @@ def enter():
     food_lave = Food.Food_lave()
     juel = character.Juel()
     lave = character.Lave()
+    framework.reset_time()
 
 def exit():
     global juel, lave, background, food_juel, food_lave
@@ -36,9 +37,9 @@ def exit():
     del(lave)
     del(background)
 
-def update():
-    juel.update()
-    lave.update()
+def update(frame_time):
+    juel.update(frame_time)
+    lave.update(frame_time)
     if juel.y >= (food_juel.y - 20) and juel.y <= (food_juel.y + 20):
         if juel.x >= (food_juel.x - 10) and juel.x <= (food_juel.x + 10):
             food_juel.update()
@@ -47,7 +48,7 @@ def update():
             food_lave.update()
 
 
-def draw():
+def draw(frame_time):
     clear_canvas()
     background.draw()
     food_juel.draw()

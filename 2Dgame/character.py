@@ -1,93 +1,18 @@
 from pico2d import*
 
+
+
 class Juel:
 
-    temp = 0
-    image1 = None
-
     PIXEL_PER_METER = (10.0 / 0.3)
-    RUN_SPEED_KMPH = 20.0
+    RUN_SPEED_KMPH = 10.0
     RUN_SPEED_MPM = (RUN_SPEED_KMPH * 1000.0 / 60.0)
     RUN_SPEED_MPS = (RUN_SPEED_MPM / 60.0)
     RUN_SPEED_PPS = (RUN_SPEED_MPS * PIXEL_PER_METER)
 
+    image1 = None
 
     RIGHT_RUN, LEFT_RUN, LEFT_STAND, RIGHT_STAND, LEFT_JUMP, RIGHT_JUMP = 0, 1, 2, 3, 4, 5
-
-    def handle_right_stand(self):
-        pass
-
-    def handle_left_stand(self):
-        pass
-
-    def handle_right_run(self):
-        if self.key == True:
-            self.x += 5
-            self.x = min(self.x, 785)
-
-    def handle_left_run(self):
-        if self.key == True:
-            self.x -= 5
-            self.x = max(self.x, 15)
-
-    def handle_right_jump(self):
-        if self.jump == 1:
-            self.y += 10
-            if self.jump_right == True:
-                self.x += 5
-                self.x = min(self.x, 785)
-            if self.jump_left == True:
-                self.state = self.LEFT_JUMP
-            if (Juel.temp + 80) == self.y:
-                self.jump = 2
-        elif self.jump == 2:
-            self.y -= 10
-            if self.jump_right == True:
-                self.x += 5
-                self.x = min(self.x, 785)
-            if self.jump_left == True:
-                self.state = self.LEFT_JUMP
-            if self.y == Juel.temp:
-                if self.move == True:
-                    self.state = self.RIGHT_RUN
-                    self.key = True
-                else:
-                    self.state = self.RIGHT_STAND
-                self.jump = 0
-
-    def handle_left_jump(self):
-        if self.jump == 1:
-            self.y += 10
-            if self.jump_left == True:
-                self.x -= 5
-                self.x = max(self.x, 15)
-            if self.jump_right == True:
-                self.state = self.RIGHT_JUMP
-            if (Juel.temp + 80) == self.y:
-                self.jump = 2
-        elif self.jump == 2:
-            self.y -= 10
-            if self.jump_left == True:
-                self.x -= 5
-                self.x = max(self.x, 15)
-            if self.jump_right == True:
-                self.state = self.RIGHT_JUMP
-            if self.y == Juel.temp:
-                if self.move == True:
-                    self.state = self.LEFT_RUN
-                    self.key = True
-                else:
-                    self.state = self.LEFT_STAND
-                self.jump = 0
-
-    handle_state = {
-        RIGHT_RUN: handle_right_run,
-        LEFT_RUN: handle_left_run,
-        LEFT_STAND: handle_left_stand,
-        RIGHT_STAND: handle_right_stand,
-        LEFT_JUMP: handle_left_jump,
-        RIGHT_JUMP: handle_right_jump
-    }
 
     def handle_events(self, event):
         if event.type == SDL_KEYUP:
@@ -136,98 +61,88 @@ class Juel:
         self.jump_left = False
         self.jump_right = False
         self.move = False
-        Juel.temp = self.y
+        self.dir = 1
+        self.temp = self.y
         if Juel.image1 == None:
             self.image = load_image('juel.png')
 
     def draw(self):
         self.image.clip_draw(self.frame*50, self.state*80, 50, 80, self.x, self.y)
 
-    def update(self):
+    def update(self, frame_time):
+        distance = Juel.RUN_SPEED_PPS * frame_time
         self.frame = (self.frame + 1) % 8
-        self.handle_state[self.state](self)
+        if self.state == self.LEFT_RUN:
+            if self.key == True:
+                self.x -= distance
+                self.x = max(self.x, 15)
+        elif self.state == self.RIGHT_RUN:
+            if self.key == True:
+                self.x += distance
+                self.x = min(self.x, 785)
+        elif self.state == self.RIGHT_JUMP:
+            if self.jump == 1:
+                self.y += distance
+                if self.jump_right == True:
+                    self.x += distance
+                    self.x = min(self.x, 785)
+                if self.jump_left == True:
+                    self.state = self.LEFT_JUMP
+                if (self.temp + (distance * 8)) < self.y:
+                    self.jump = 2
+            elif self.jump == 2:
+                self.y -= distance
+                if self.jump_right == True:
+                    self.x += distance
+                    self.x = min(self.x, 785)
+                if self.jump_left == True:
+                    self.state = self.LEFT_JUMP
+                if self.y <= self.temp:
+                    self.y = self.temp
+                    if self.move == True:
+                        self.state = self.RIGHT_RUN
+                        self.key = True
+                    else:
+                        self.state = self.RIGHT_STAND
+                    self.jump = 0
+        elif self.state == self.LEFT_JUMP:
+            if self.jump == 1:
+                self.y += distance
+                if self.jump_left == True:
+                    self.x -= distance
+                    self.x = max(self.x, 15)
+                if self.jump_right == True:
+                    self.state = self.RIGHT_JUMP
+                if (self.temp + (distance * 8)) < self.y:
+                    self.jump = 2
+            elif self.jump == 2:
+                self.y -= distance
+                if self.jump_left == True:
+                    self.x -= distance
+                    self.x = max(self.x, 15)
+                if self.jump_right == True:
+                    self.state = self.RIGHT_JUMP
+                if self.y <= self.temp:
+                    self.y = self.temp
+                    if self.move == True:
+                        self.state = self.LEFT_RUN
+                        self.key = True
+                    else:
+                        self.state = self.LEFT_STAND
+                    self.jump = 0
+
 
 
 class Lave:
-    temp = 0
+    PIXEL_PER_METER = (10.0 / 0.3)
+    RUN_SPEED_KMPH = 10.0
+    RUN_SPEED_MPM = (RUN_SPEED_KMPH * 1000.0 / 60.0)
+    RUN_SPEED_MPS = (RUN_SPEED_MPM / 60.0)
+    RUN_SPEED_PPS = (RUN_SPEED_MPS * PIXEL_PER_METER)
+
     image2 = None
 
     RIGHT_RUN, LEFT_RUN, LEFT_STAND, RIGHT_STAND, LEFT_JUMP, RIGHT_JUMP = 0, 1, 2, 3, 4, 5
-
-    def handle_right_stand(self):
-        pass
-
-    def handle_left_stand(self):
-        pass
-
-    def handle_right_run(self):
-        if self.key == True:
-            self.x += 5
-            self.x = min(self.x, 785)
-
-    def handle_left_run(self):
-        if self.key == True:
-            self.x -= 5
-            self.x = max(self.x, 15)
-
-    def handle_right_jump(self):
-        if self.jump == 1:
-            self.y += 10
-            if self.jump_right == True:
-                self.x += 5
-                self.x = min(self.x, 785)
-            if self.jump_left == True:
-                self.state = self.LEFT_JUMP
-            if (Lave.temp + 80) == self.y:
-                self.jump = 2
-        elif self.jump == 2:
-            self.y -= 10
-            if self.jump_right == True:
-                self.x += 5
-                self.x = min(self.x, 785)
-            if self.jump_left == True:
-                self.state = self.LEFT_JUMP
-            if self.y == Lave.temp:
-                if self.move == True:
-                    self.state = self.RIGHT_RUN
-                    self.key = True
-                else:
-                    self.state = self.RIGHT_STAND
-                self.jump = 0
-
-    def handle_left_jump(self):
-        if self.jump == 1:
-            self.y += 10
-            if self.jump_left == True:
-                self.x -= 5
-                self.x = max(self.x, 15)
-            if self.jump_right == True:
-                self.state = self.RIGHT_JUMP
-            if (Lave.temp + 80) == self.y:
-                self.jump = 2
-        elif self.jump == 2:
-            self.y -= 10
-            if self.jump_left == True:
-                self.x -= 5
-                self.x = max(self.x, 15)
-            if self.jump_right == True:
-                self.state = self.RIGHT_JUMP
-            if self.y == Lave.temp:
-                if self.move == True:
-                    self.state = self.LEFT_RUN
-                    self.key = True
-                else:
-                    self.state = self.LEFT_STAND
-                self.jump = 0
-
-    handle_state = {
-        RIGHT_RUN: handle_right_run,
-        LEFT_RUN: handle_left_run,
-        LEFT_STAND: handle_left_stand,
-        RIGHT_STAND: handle_right_stand,
-        LEFT_JUMP: handle_left_jump,
-        RIGHT_JUMP: handle_right_jump
-    }
 
     def handle_events(self, event):
         if event.type == SDL_KEYUP:
@@ -276,13 +191,72 @@ class Lave:
         self.jump_left = False
         self.jump_right = False
         self.move = False
-        Lave.temp = self.y
+        self.temp = self.y
         if Lave.image2 == None:
             self.image = load_image('lave.png')
 
     def draw(self):
         self.image.clip_draw(self.frame*50, self.state*80, 50, 80, self.x, self.y)
 
-    def update(self):
+    def update(self, frame_time):
         self.frame = (self.frame + 1) % 8
-        self.handle_state[self.state](self)
+        distance = Juel.RUN_SPEED_PPS * frame_time
+        self.frame = (self.frame + 1) % 8
+        if self.state == self.LEFT_RUN:
+            if self.key == True:
+                self.x -= distance
+                self.x = max(self.x, 15)
+        elif self.state == self.RIGHT_RUN:
+            if self.key == True:
+                self.x += distance
+                self.x = min(self.x, 785)
+        elif self.state == self.RIGHT_JUMP:
+            if self.jump == 1:
+                self.y += distance
+                if self.jump_right == True:
+                    self.x += distance
+                    self.x = min(self.x, 785)
+                if self.jump_left == True:
+                    self.state = self.LEFT_JUMP
+                if (self.temp + (distance * 8)) < self.y:
+                    self.jump = 2
+            elif self.jump == 2:
+                self.y -= distance
+                if self.jump_right == True:
+                    self.x += distance
+                    self.x = min(self.x, 785)
+                if self.jump_left == True:
+                    self.state = self.LEFT_JUMP
+                if self.y <= self.temp:
+                    self.y = self.temp
+                    if self.move == True:
+                        self.state = self.RIGHT_RUN
+                        self.key = True
+                    else:
+                        self.state = self.RIGHT_STAND
+                    self.jump = 0
+        elif self.state == self.LEFT_JUMP:
+            if self.jump == 1:
+                self.y += distance
+                if self.jump_left == True:
+                    self.x -= distance
+                    self.x = max(self.x, 15)
+                if self.jump_right == True:
+                    self.state = self.RIGHT_JUMP
+                if (self.temp + (distance * 8)) < self.y:
+                    self.jump = 2
+            elif self.jump == 2:
+                self.y -= distance
+                if self.jump_left == True:
+                    self.x -= distance
+                    self.x = max(self.x, 15)
+                if self.jump_right == True:
+                    self.state = self.RIGHT_JUMP
+                if self.y <= self.temp:
+                    self.y = self.temp
+                    if self.move == True:
+                        self.state = self.LEFT_RUN
+                        self.key = True
+                    else:
+                        self.state = self.LEFT_STAND
+                    self.jump = 0
