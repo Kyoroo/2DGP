@@ -3,6 +3,7 @@ import first_state
 import character
 import Background
 import Food
+import json
 from pico2d import*
 import os
 
@@ -25,8 +26,32 @@ def enter():
     background = Background.Background01()
     food_juel = Food.Food_juel()
     food_lave = Food.Food_lave()
+
+    f = open('data_file.txt', 'r')
+    data = json.load(f)
+    f.close()
+
+    Juel_state_table = {
+        "LEFT_STAND" : character.Juel.LEFT_STAND,
+        "RIGHT_STAND" : character.Juel.RIGHT_STAND
+    }
+
+    Lave_state_table = {
+        "LEFT_STAND" : character.Lave.LEFT_STAND,
+        "RIGHT_STAND" : character.Lave.RIGHT_STAND
+    }
+
     juel = character.Juel()
+    juel.x = data['Juel']['X']
+    juel.y = data['Juel']['Y']
+    juel.state = Juel_state_table[data['Juel']['StartState']]
+
     lave = character.Lave()
+    lave.x = data['Lave']['X']
+    lave.y = data['Lave']['Y']
+    lave.state = Lave_state_table[data['Lave']['StartState']]
+
+
     framework.reset_time()
 
 def exit():

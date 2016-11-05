@@ -1,0 +1,4 @@
+{
+    "Juel" : {"StartState" : "LEFT_STAND", "X":780, "Y":80},
+    "Lave" : {"StartState" : "RIGHT_STAND", "X":20, "Y":80}
+}
