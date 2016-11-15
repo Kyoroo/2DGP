@@ -23,19 +23,24 @@ def collide(a, b):
     return True
 
 def handle_events(frame_time):
-    global juel, lave
+    global juel, lave, cheet
     events = get_events()
     for event in events:
         if event.type == SDL_QUIT:
             framework.quit()
         elif event.type == SDL_KEYDOWN and event.key == SDLK_ESCAPE:
             framework.change_state(first_state)
+        elif event.type == SDL_KEYDOWN and event.key == SDLK_c:
+            if cheet == False:
+                cheet = True
+            elif cheet == True:
+                cheet = False
         else:
             juel.handle_events(event)
             lave.handle_events(event)
 
 def enter():
-    global juel, lave, background, food_juels, food_laves, monsters, font, obj, fireballs, hp, mp, over
+    global juel, lave, background, food_juels, food_laves, monsters, font, obj, fireballs, hp, mp, over, cheet
     background = Background.Background01()
     monsters = [monster.Monster() for i in range(2)]
     food_juels = [Food.Food_juel() for i in range(2)]
@@ -46,6 +51,7 @@ def enter():
     font = load_font('Binggrae.ttf', 40)
     obj = 4
     over = False
+    cheet = False
 
     f = open('data_file.txt', 'r')
     data = json.load(f)
@@ -92,7 +98,7 @@ def exit():
 
 
 def update(frame_time):
-    global obj, over
+    global obj, over, cheet
 
     juel.update(frame_time)
     juel.delay_frame()
@@ -117,13 +123,13 @@ def update(frame_time):
 
     for fireball in fireballs:
         if collide(juel, fireball):
-            if juel.delay_time == 0:
+            if juel.delay_time == 0 and cheet == False:
                 hp.update()
                 juel.delay_time = 1
             if hp.state >= 3:
                 over = True
         if collide(lave, fireball):
-            if lave.delay_time == 0:
+            if lave.delay_time == 0 and cheet == False:
                 mp.update()
                 lave.delay_time = 1
             if mp.state >= 3:
@@ -131,13 +137,13 @@ def update(frame_time):
 
     for monster in monsters:
         if collide(juel, monster):
-            if juel.delay_time == 0:
+            if juel.delay_time == 0 and cheet == False:
                 hp.update()
                 juel.delay_time = 1
             if hp.state == 3:
                 over = True
         if collide(lave, monster):
-            if lave.delay_time == 0:
+            if lave.delay_time == 0 and cheet == False:
                 mp.update()
                 lave.delay_time = 1
             if mp.state == 3:
