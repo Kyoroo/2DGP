@@ -1,39 +1,16 @@
 from pico2d import*
-import framework
-import first_state
 
-name = "GameOverState"
-image = None
+class gameover():
+    def __init__(self):
+        self.image = load_image('game_over.png')
 
-def enter():
-    global image
-    image = load_image('game_over.png')
+    def draw(self):
+        self.image.draw(400, 300)
 
-def exit():
-    global image
-    del(image)
+class clear():
 
-def update(frame_time):
-    pass
+    def __init__(self):
+        self.image = load_image('clear.png')
 
-def draw(frmae_time):
-    global image
-    clear_canvas()
-    image.draw(400, 300)
-    update_canvas()
-
-def handle_events(frame_time):
-    events = get_events()
-    for event in events:
-        if event.type == SDL_QUIT:
-            framework.quit()
-        else:
-            if (event.type, event.key) == (SDL_KEYDOWN, SDLK_ESCAPE):
-                framework.change_state(first_state)
-
-def pause():
-    pass
-
-def resume():
-    pass
-
+    def draw(self):
+        self.image.draw(400,300)

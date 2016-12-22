@@ -5,19 +5,26 @@ class Food_juel:
     image = None
 
     def __init__(self):
-        self.x, self.y = random.randint(40, 760), 160
+        self.x, self.y = random.randint(40, 2360), random.randint(40, 1040)
         self. score = 0
         if Food_juel.image == None:
             self.image = load_image('Food_juel.png')
 
+    def set_background(self, bg):
+        self.bg = bg
+
     def draw(self):
-        self.image.draw(self.x, self.y)
+        sx = self.x - self.bg.window_left
+        sy = self.y - self.bg.window_bottom
+        self.image.draw(sx, sy)
 
     def draw_bb(self):
         draw_rectangle(*self.get_bb())
 
     def get_bb(self):
-        return self.x - 10, self.y - 10, self.x + 10, self.y + 10
+        sx = self.x - self.bg.window_left
+        sy = self.y - self.bg.window_bottom
+        return sx - 10, sy - 10, sx + 10, sy + 10
 
     def update(self):
         self.score += 1
@@ -28,19 +35,26 @@ class Food_lave:
     image = None
 
     def __init__(self):
-        self.x, self.y = random.randint(40, 760), 160
+        self.x, self.y = random.randint(40, 2360), random.randint(40, 1040)
         self.score = 0
         if Food_lave.image == None:
             self.image = load_image('Food_lave.png')
 
+    def set_background(self, bg):
+        self.bg = bg
+
     def draw(self):
-        self.image.draw(self.x, self.y)
+        sx = self.x - self.bg.window_left
+        sy = self.y - self.bg.window_bottom
+        self.image.draw(sx, sy)
 
     def draw_bb(self):
         draw_rectangle(*self.get_bb())
 
     def get_bb(self):
-        return self.x - 10, self.y - 10, self.x + 10, self.y + 10
+        sx = self.x - self.bg.window_left
+        sy = self.y - self.bg.window_bottom
+        return sx - 10, sy - 10, sx + 10, sy + 10
 
     def update(self):
         self.score += 1

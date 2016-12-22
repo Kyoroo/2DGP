@@ -40,18 +40,22 @@ def handle_events(frame_time):
             lave.handle_events(event)
 
 def enter():
-    global juel, lave, background, food_juels, food_laves, monsters, font, obj, fireballs, hp, mp, over, cheet
+    global juel, lave, background, food_juels, food_laves, monsters, font, obj, fireballs, hp, mp, over, cheet, gameover, pause, clear, clear_draw
     background = Background.Background01()
-    monsters = [monster.Monster() for i in range(2)]
+    monsters = [monster.Monster() for i in range(10)]
     food_juels = [Food.Food_juel() for i in range(2)]
     food_laves = [Food.Food_lave() for i in range(2)]
-    fireballs = [monster.Fireball() for i in range(3)]
+    fireballs = [monster.Fireball() for i in range(25)]
+    gameover = gameover_state.gameover()
+    clear_draw = gameover_state.clear()
     hp = Food.HP()
     mp = Food.MP()
     font = load_font('Binggrae.ttf', 40)
     obj = 4
     over = False
     cheet = False
+    pause = False
+    clear = False
 
     f = open('data_file.txt', 'r')
     data = json.load(f)
@@ -77,10 +81,23 @@ def enter():
     lave.y = data['Lave']['Y']
     lave.state = Lave_state_table[data['Lave']['StartState']]
 
+    background.set_center_object(juel, lave)
+    juel.set_background(background)
+    lave.set_background(background)
+    for mob in monsters:
+        mob.set_background(background)
+        mob.set_character(juel, lave)
+    for fireball in fireballs:
+        fireball.set_background(background)
+    for food in food_juels:
+        food.set_background(background)
+    for food in food_laves:
+        food.set_background(background)
+
     framework.reset_time()
 
 def exit():
-    global juel, lave, background, food_juels, food_laves, monsters, fireballs, hp, mp
+    global juel, lave, background, food_juels, food_laves, monsters, fireballs, hp, mp, gameover
 
     del(juel)
     del(lave)
@@ -98,59 +115,66 @@ def exit():
 
 
 def update(frame_time):
-    global obj, over, cheet
+    global pause
+    if pause == False:
+        global obj, over, cheet, background, clear
 
-    juel.update(frame_time)
-    juel.delay_frame()
-    lave.delay_frame()
-    lave.update(frame_time)
+        juel.update(frame_time)
+        juel.delay_frame()
+        lave.delay_frame()
+        lave.update(frame_time)
+        background.update(frame_time)
 
-    for monster in monsters:
-        monster.update(frame_time)
+        for monster in monsters:
+           monster.update(frame_time)
 
-    for fireball in fireballs:
-        fireball.update(frame_time)
+        for fireball in fireballs:
+            fireball.update(frame_time)
 
-    for food in food_juels:
-        if collide(juel, food):
-            food_juels.remove(food)
-            obj -= 1
+        for food in food_juels:
+            if collide(juel, food):
+                food_juels.remove(food)
+                obj -= 1
 
-    for food in food_laves:
-        if collide(lave, food):
-            food_laves.remove(food)
-            obj -= 1
+        for food in food_laves:
+            if collide(lave, food):
+               food_laves.remove(food)
+               obj -= 1
 
-    for fireball in fireballs:
-        if collide(juel, fireball):
-            if juel.delay_time == 0 and cheet == False:
-                hp.update()
-                juel.delay_time = 1
-            if hp.state >= 3:
-                over = True
-        if collide(lave, fireball):
-            if lave.delay_time == 0 and cheet == False:
-                mp.update()
-                lave.delay_time = 1
-            if mp.state >= 3:
-                over = True
+        for fireball in fireballs:
+            if collide(juel, fireball):
+                if juel.delay_time == 0 and cheet == False:
+                    hp.update()
+                    juel.delay_time = 1
+                if hp.state >= 3:
+                    over = True
+            if collide(lave, fireball):
+                if lave.delay_time == 0 and cheet == False:
+                    mp.update()
+                    lave.delay_time = 1
+                if mp.state >= 3:
+                   over = True
 
-    for monster in monsters:
-        if collide(juel, monster):
-            if juel.delay_time == 0 and cheet == False:
-                hp.update()
-                juel.delay_time = 1
-            if hp.state == 3:
-                over = True
-        if collide(lave, monster):
-            if lave.delay_time == 0 and cheet == False:
-                mp.update()
-                lave.delay_time = 1
-            if mp.state == 3:
-                over = True
+        for monster in monsters:
+            if collide(juel, monster):
+                if juel.delay_time == 0 and cheet == False:
+                    hp.update()
+                    juel.delay_time = 1
+                if hp.state == 3:
+                    over = True
+            if collide(lave, monster):
+                if lave.delay_time == 0 and cheet == False:
+                    mp.update()
+                    lave.delay_time = 1
+                if mp.state == 3:
+                    over = True
+
+        if obj == 0:
+            pause = True
+            clear = True
 
     if over == True:
-        framework.change_state(gameover_state)
+        pause = True
 
 def draw(frame_time):
     global obj
@@ -161,23 +185,21 @@ def draw(frame_time):
     mp.draw()
     for food in food_juels:
         food.draw()
-        food.draw_bb()
     for food in food_laves:
         food.draw()
-        food.draw_bb()
     juel.draw()
     lave.draw()
     for monster in monsters:
         monster.draw()
-        monster.draw_bb()
     for fireball in fireballs:
         fireball.draw()
-        fireball.draw_bb()
-
-    juel.draw_bb()
-    lave.draw_bb()
 
     font.draw(40,560, 'Food = %d' % obj,(255,255,255))
+    if pause == True:
+        if over == True:
+            gameover.draw()
+        elif clear == True:
+            clear_draw.draw()
 
 
     update_canvas()
